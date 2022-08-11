@@ -16,7 +16,7 @@ async def start_handler(message: types.Message):
 @dp.message_handler(commands=['help'])
 async def start_handler(message: types.Message):
     await bot.send_message(message.from_user.id,
-                           f"для начало работы пропишите: /start  /quiz  /mems {message.from_user.full_name}")
+                           f"для начало работы пропишите: /start  /quiz  /mems /video  {message.from_user.full_name}")
 
 @dp.message_handler(commands=['quiz'])
 async def quiz_1(message: types.Message):
@@ -76,8 +76,6 @@ async def start_handler(message: types.Message):
     lst = ["media/memm.jpg", "media/hr_to_dev.jpg"]
     photo = open(random.choice(lst), 'rb')
     await bot.send_photo(message.chat.id, photo=photo)
-
-
 
 
 
