@@ -4,8 +4,4 @@ venv
 .vscode
 pycache/
 *.py[cod]
-<<<<<<< HEAD
 *.so
-=======
-*.so
->>>>>>> 5ece749f505c16d2c6098a532034fd65e9e51d9c
