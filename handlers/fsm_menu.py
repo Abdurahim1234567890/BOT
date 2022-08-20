@@ -2,9 +2,10 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from config import  ADMIN
+from config import ADMIN
 from config import bot
 from keyboards.client_kb import cancel_markup
+from database import bot_db
 
 
 class FSMAdmin(StatesGroup):
@@ -66,11 +67,38 @@ async def cancel_registeration(message: types, state: FSMContext):
         return
     else:
         await state.finish()
-        await message.answer('Регистрация боюда отменена)')
+        await message.answer('Регистрация блюда отменена)')
+
+
+async def delete_data(message: types.Message):
+    if message.from_user.id in ADMIN and message.chat.type == "private":
+        global users
+        users = await bot_db.sql_command_all()
+        for user in users:
+            await bot.send_photo(message.from_user.id, user[0],
+                                 caption=f"name: {user[1]}"
+                                         f"description : {user[2]}"
+                                         f"price: {user[3]} ",
+                                 replay_markup=InlineKeyboardMarkup().add(
+                                     InlineKeyboardButton(
+                                         f"delete: {user[1]}",
+                                         callback_data=f"delete {user[1]}"
+                                     )
+                                 )
+                                 )
+
+    else:
+        await message.reply("Ты не мой Босс!")
+
+
+async def complete_delete(call: types.CallbackQuery):
+    await bot_db.sql_command_delete(call.data.replace('delete ', ""))
+    await call.answer(text="Стерт с БД", show_alert=True)
+    await bot.delete_message(call.message.chat.id, call.message.message_id)
 
 
 def register_handler_fsmmenu(dp: Dispatcher):
-    dp.register_message_handler(cancel_registeration, state = '*', commands='cancel')
+    dp.register_message_handler(cancel_registeration, state='*', commands='cancel')
     dp.register_message_handler(cancel_registeration,
                                 Text(equals='cancel', ignore_case=True), state='*')
 
@@ -80,3 +108,8 @@ def register_handler_fsmmenu(dp: Dispatcher):
     dp.register_message_handler(load_name, state=FSMAdmin.name)
     dp.register_message_handler(load_description, state=FSMAdmin.description)
     dp.register_message_handler(load_price, state=FSMAdmin.price)
+    dp.register_message_handler(delete_data, commands=['del'])
+    dp.register_callback_query_handler(
+        complete_delete,
+        lambda call: call.data and call.data.startswith("delete ")
+    )
