@@ -2,10 +2,10 @@ from aiogram import types, Dispatcher
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from config import ADMIN
-from config import bot
+from config import bot, ADMIN
 from keyboards.client_kb import cancel_markup
 from database import bot_db
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 class FSMAdmin(StatesGroup):
@@ -28,8 +28,6 @@ async def fsm_start(message: types.Message):
 
 async def load_photo(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['id'] = message.from_user.id
-        data['username'] = f"@{message.from_user.username}"
         data['photo'] = message.photo[0].file_id
         await FSMAdmin.next()
         await message.answer('Напишите название блюда')
@@ -56,14 +54,14 @@ async def load_price(message: types.Message, state: FSMContext):
                              caption=f"Name: {data['name']}\n"
                                      f"description: {data['description']}\n"
                                      f"price: {data['price']}")
-
+    await bot_db.sql_command_insert(state)
     await state.finish()
     await message.answer("Все гуляй вася)")
 
 
 async def cancel_registeration(message: types, state: FSMContext):
     current_state = await state.get_state()
-    if corrent_state is None:
+    if current_state is None:
         return
     else:
         await state.finish()
@@ -79,7 +77,7 @@ async def delete_data(message: types.Message):
                                  caption=f"name: {user[1]}"
                                          f"description : {user[2]}"
                                          f"price: {user[3]} ",
-                                 replay_markup=InlineKeyboardMarkup().add(
+                                 reply_markup=InlineKeyboardMarkup().add(
                                      InlineKeyboardButton(
                                          f"delete: {user[1]}",
                                          callback_data=f"delete {user[1]}"
