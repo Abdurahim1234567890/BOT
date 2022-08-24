@@ -22,8 +22,8 @@ async def get_up():
 
 
 async def time():
-    aioschedule.every().wednesday.at("14:35").do(go_to_nature)
-    aioschedule.every().wednesday.at("14:35").do(get_up)
+    aioschedule.every().wednesday.at("8:00").do(go_to_nature)
+    aioschedule.every().wednesday.at("8:00").do(get_up)
 
     while True:
         await aioschedule.run_pending()
