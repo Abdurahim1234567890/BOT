@@ -1,8 +1,11 @@
 from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.markdown import hbold
+
 from config import bot
 from keyboards.client_kb import start_markup
 from database.bot_db import sql_command_random
+from perser.fighter import parser
 
 
 # @dp.message_handler(commands=['start'])
@@ -56,9 +59,23 @@ async def show_random_user(message: types.Message):
     await sql_command_random(message)
 
 
-def register_handlers_client(dp: Dispatcher, ):
+async def parser_fighter(message: types.Message):
+    data = parser()
+    for item in data:
+        title = hbold(item['title'])
+        await bot.send_message(
+            message.from_user.id,
+            f"{item['link']}\n\n"
+            f"{item['title']}\n"
+            f"#{item['year']}\n"
+            f"#{item['city']}\n"
+            f"#{item['genre']}\n"
+        )
+
+def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(start_handler, commands=["start"])
     dp.register_message_handler(start_handlers, commands=["help"])
     dp.register_message_handler(quiz_1, commands=['quiz'])
     dp.register_message_handler(pin, commands=['pin'], commands_prefix='!')
     dp.register_message_handler(show_random_user, commands=['get'])
+    dp.register_message_handler(parser_fighter, commands=['fighter'])

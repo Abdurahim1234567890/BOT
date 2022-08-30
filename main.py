@@ -2,7 +2,7 @@ import random
 
 from aiogram.utils import executor
 from config import dp
-from handlers import client, callbak, extra, admin, fsm_menu,natification
+from handlers import client, callbak, extra, admin, fsm_menu, natification
 from database import bot_db
 import logging
 import asyncio
@@ -17,7 +17,7 @@ client.register_handlers_client(dp)
 callbak.register__handlers_callback(dp)
 
 admin.register_handler_admin(dp)
-natification.register_hendler_notification((dp))
+natification.register_hendler_notification(dp)
 
 extra.register_handler_extra(dp)
 
